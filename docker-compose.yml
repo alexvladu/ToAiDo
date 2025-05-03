@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  codex-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: alexandru
+      POSTGRES_DB: TODO  # Baza de date
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - codex-network
+
+  backend:
+    build:
+      context: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - codex-db
+    networks:
+      - codex-network
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - codex-network
+
+volumes:
+  postgres-data:
+
+networks:
+  codex-network:
+    driver: bridge
